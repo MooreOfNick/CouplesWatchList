@@ -1,23 +1,13 @@
-//
-//  Couples_Watch_ListApp.swift
-//  Couples Watch List
-//
-//  Created by Nick Moore on 5/13/26.
-//
-
 import SwiftUI
 import SwiftData
 
 @main
 struct Couples_Watch_ListApp: App {
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
+        let schema = Schema([WatchlistItem.self, SeasonProgress.self])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try ModelContainer(for: schema, configurations: [config])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
