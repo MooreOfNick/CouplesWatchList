@@ -44,8 +44,12 @@ struct SearchView: View {
         }
     }
 
+    private var watchlistIDs: Set<String> {
+        Set(watchlist.map { "\($0.tmdbID)-\($0.mediaTypeRaw)" })
+    }
+
     private func isOnWatchlist(_ result: TMDBSearchResult) -> Bool {
-        watchlist.contains { $0.tmdbID == result.id && $0.mediaTypeRaw == result.mediaType }
+        watchlistIDs.contains("\(result.id)-\(result.mediaType ?? "")")
     }
 
     private func addToWatchlist(_ result: TMDBSearchResult, tvDetails: TMDBTVDetails?, status: WatchStatus) {
@@ -93,7 +97,7 @@ struct SearchResultRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            AsyncImage(url: result.posterURL) { image in
+            CachedAsyncImage(url: result.posterURL) { image in
                 image.resizable().aspectRatio(contentMode: .fill)
             } placeholder: {
                 Color.secondary.opacity(0.2)

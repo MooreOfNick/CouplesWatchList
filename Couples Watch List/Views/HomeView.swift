@@ -103,7 +103,7 @@ fileprivate struct UpNextCard: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            AsyncImage(url: entry.item.posterURL) { image in
+            CachedAsyncImage(url: entry.item.posterURL) { image in
                 image.resizable().aspectRatio(contentMode: .fill)
             } placeholder: {
                 Color.secondary.opacity(0.25)
@@ -151,7 +151,7 @@ struct HomeItemRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            AsyncImage(url: item.posterURL) { image in
+            CachedAsyncImage(url: item.posterURL) { image in
                 image.resizable().aspectRatio(contentMode: .fill)
             } placeholder: {
                 Color.secondary.opacity(0.2)

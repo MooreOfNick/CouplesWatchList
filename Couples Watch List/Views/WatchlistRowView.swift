@@ -9,7 +9,7 @@ struct WatchlistRowView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            AsyncImage(url: item.posterURL) { image in
+            CachedAsyncImage(url: item.posterURL) { image in
                 image.resizable().aspectRatio(contentMode: .fill)
             } placeholder: {
                 Color.secondary.opacity(0.2)

@@ -4,6 +4,8 @@ struct SeasonEpisodesView: View {
     @Bindable var season: SeasonProgress
     let item: WatchlistItem
 
+    private var watchedSet: Set<Int> { Set(season.watchedEpisodes) }
+
     var body: some View {
         List {
             Section {
@@ -22,7 +24,7 @@ struct SeasonEpisodesView: View {
             if season.episodeCount > 0 {
                 Section("Episodes") {
                     ForEach(1...season.episodeCount, id: \.self) { ep in
-                        let isWatched = season.status == .watched || season.watchedEpisodes.contains(ep)
+                        let isWatched = season.status == .watched || watchedSet.contains(ep)
                         HStack {
                             Text("Episode \(ep)")
                             Spacer()

@@ -105,8 +105,11 @@ final class WatchlistItem {
     /// Derived from season-level statuses when available; falls back to the stored status for movies.
     var derivedStatus: WatchStatus {
         guard !seasonProgresses.isEmpty else { return status }
-        if seasonProgresses.contains(where: { $0.status == .watching }) { return .watching }
-        if seasonProgresses.allSatisfy({ $0.status == .watched }) { return .watched }
-        return .wantToWatch
+        var allWatched = true
+        for s in seasonProgresses {
+            if s.status == .watching { return .watching }
+            if s.status != .watched { allWatched = false }
+        }
+        return allWatched ? .watched : .wantToWatch
     }
 }
