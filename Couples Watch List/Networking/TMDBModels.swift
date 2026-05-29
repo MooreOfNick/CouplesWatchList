@@ -68,3 +68,70 @@ struct TMDBSeason: Codable, Identifiable {
         case name
     }
 }
+
+struct TMDBSeasonDetails: Codable {
+    let posterPath: String?
+    let overview: String?
+    let episodes: [TMDBEpisodeDetail]
+
+    enum CodingKeys: String, CodingKey {
+        case posterPath = "poster_path"
+        case overview
+        case episodes
+    }
+
+    var posterURL: URL? {
+        guard let path = posterPath else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/w500\(path)")
+    }
+}
+
+struct TMDBWatchProvider: Codable, Identifiable {
+    let providerId: Int
+    let providerName: String
+    let logoPath: String?
+
+    enum CodingKeys: String, CodingKey {
+        case providerId = "provider_id"
+        case providerName = "provider_name"
+        case logoPath = "logo_path"
+    }
+
+    var id: Int { providerId }
+
+    var logoURL: URL? {
+        guard let path = logoPath else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/w92\(path)")
+    }
+}
+
+struct TMDBRegionProviders: Codable {
+    let flatrate: [TMDBWatchProvider]?
+    let free: [TMDBWatchProvider]?
+    let ads: [TMDBWatchProvider]?
+}
+
+struct TMDBWatchProvidersResponse: Codable {
+    let results: [String: TMDBRegionProviders]
+}
+
+struct TMDBEpisodeDetail: Codable, Identifiable {
+    let id: Int
+    let episodeNumber: Int
+    let name: String
+    let overview: String?
+    let stillPath: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case episodeNumber = "episode_number"
+        case name
+        case overview
+        case stillPath = "still_path"
+    }
+
+    var stillURL: URL? {
+        guard let path = stillPath else { return nil }
+        return URL(string: "https://image.tmdb.org/t/p/w500\(path)")
+    }
+}

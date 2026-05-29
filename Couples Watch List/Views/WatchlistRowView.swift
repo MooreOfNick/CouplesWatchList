@@ -4,7 +4,7 @@ struct WatchlistRowView: View {
     @Bindable var item: WatchlistItem
 
     private var hasSeasonTracking: Bool {
-        item.mediaType == .tv && !item.seasonProgresses.isEmpty
+        !item.seasonProgresses.isEmpty
     }
 
     var body: some View {
@@ -23,15 +23,11 @@ struct WatchlistRowView: View {
                     .lineLimit(2)
 
                 HStack(spacing: 4) {
-                    Image(systemName: item.mediaType.systemImage)
-                        .font(.caption2)
-                    Text(item.mediaType.displayName)
-                        .font(.caption)
                     if !item.releaseYear.isEmpty {
-                        Text("· \(item.releaseYear)")
+                        Text(item.releaseYear)
                             .font(.caption)
                     }
-                    if item.mediaType == .tv, let seasons = item.numberOfSeasons {
+                    if let seasons = item.numberOfSeasons {
                         Text("· \(seasons) season\(seasons == 1 ? "" : "s")")
                             .font(.caption)
                     }

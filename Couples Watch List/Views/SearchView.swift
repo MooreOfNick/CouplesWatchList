@@ -10,30 +10,22 @@ struct SearchView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                if viewModel.isLoading {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                        Spacer()
-                    }
-                    .listRowBackground(Color.clear)
-                } else if let error = viewModel.errorMessage {
-                    Text(error)
-                        .foregroundStyle(.red)
-                        .font(.callout)
+            Group {
+                if viewModel.query.isEmpty {
+                    TrendingGridView(
+                        results: viewModel.trendingResults,
+                        isLoading: viewModel.isTrendingLoading,
+                        isOnWatchlist: isOnWatchlist,
+                        onSelect: { selectedResult = $0 }
+                    )
                 } else {
-                    ForEach(viewModel.results) { result in
-                        SearchResultRow(result: result, isOnWatchlist: isOnWatchlist(result))
-                            .contentShape(Rectangle())
-                            .onTapGesture { selectedResult = result }
-                    }
+                    searchResultsList
                 }
             }
-            .listStyle(.plain)
             .navigationTitle("Search")
             .searchable(text: $viewModel.query, prompt: "Movies & TV shows")
             .onChange(of: viewModel.query) { viewModel.search() }
+            .task { await viewModel.loadTrending() }
             .sheet(item: $selectedResult) { result in
                 MediaDetailView(
                     result: result,
@@ -42,6 +34,30 @@ struct SearchView: View {
                 )
             }
         }
+    }
+
+    private var searchResultsList: some View {
+        List {
+            if viewModel.isLoading {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+                .listRowBackground(Color.clear)
+            } else if let error = viewModel.errorMessage {
+                Text(error)
+                    .foregroundStyle(.red)
+                    .font(.callout)
+            } else {
+                ForEach(viewModel.results) { result in
+                    SearchResultRow(result: result, isOnWatchlist: isOnWatchlist(result))
+                        .contentShape(Rectangle())
+                        .onTapGesture { selectedResult = result }
+                }
+            }
+        }
+        .listStyle(.plain)
     }
 
     private var watchlistIDs: Set<String> {
@@ -87,6 +103,75 @@ struct SearchView: View {
                 progress.item = item
                 modelContext.insert(progress)
             }
+        }
+    }
+}
+
+struct TrendingGridView: View {
+    let results: [TMDBSearchResult]
+    let isLoading: Bool
+    let isOnWatchlist: (TMDBSearchResult) -> Bool
+    let onSelect: (TMDBSearchResult) -> Void
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 3)
+
+    var body: some View {
+        ScrollView {
+            if isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 48)
+            } else if !results.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Trending This Week")
+                        .font(.title2.weight(.semibold))
+                        .padding(.horizontal)
+
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        ForEach(results) { result in
+                            PosterCard(result: result, isOnWatchlist: isOnWatchlist(result))
+                                .onTapGesture { onSelect(result) }
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .padding(.top, 8)
+                .padding(.bottom, 20)
+            }
+        }
+    }
+}
+
+struct PosterCard: View {
+    let result: TMDBSearchResult
+    let isOnWatchlist: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            CachedAsyncImage(url: result.posterURL) { image in
+                image.resizable().aspectRatio(contentMode: .fill)
+            } placeholder: {
+                Color.secondary.opacity(0.2)
+                    .overlay {
+                        Image(systemName: "photo")
+                            .foregroundStyle(.secondary.opacity(0.5))
+                    }
+            }
+            .aspectRatio(2/3, contentMode: .fit)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(alignment: .topTrailing) {
+                if isOnWatchlist {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.white)
+                        .background(Circle().fill(.green))
+                        .padding(4)
+                }
+            }
+
+            Text(result.displayTitle)
+                .font(.caption)
+                .lineLimit(2)
+                .foregroundStyle(.primary)
         }
     }
 }

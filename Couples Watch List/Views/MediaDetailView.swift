@@ -62,27 +62,35 @@ struct MediaDetailView: View {
                                 .foregroundStyle(.secondary)
                         }
 
-                        Button {
-                            showingStatusDialog = true
-                        } label: {
-                            Label(
-                                isOnWatchlist ? "Already on Watchlist" : "Add to Watchlist",
-                                systemImage: isOnWatchlist ? "checkmark.circle.fill" : "plus.circle.fill"
-                            )
-                            .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(isOnWatchlist)
-                        .padding(.top, 4)
-                        .confirmationDialog("Add to Watchlist", isPresented: $showingStatusDialog) {
-                            ForEach(WatchStatus.allCases, id: \.self) { status in
-                                Button(status.rawValue) {
-                                    onAdd(tvDetails, status)
-                                    dismiss()
-                                }
+                        if result.resolvedMediaType == .movie {
+                            Label("Movie tracking coming soon", systemImage: "clock")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 4)
+                        } else {
+                            Button {
+                                showingStatusDialog = true
+                            } label: {
+                                Label(
+                                    isOnWatchlist ? "Already on Watchlist" : "Add to Watchlist",
+                                    systemImage: isOnWatchlist ? "checkmark.circle.fill" : "plus.circle.fill"
+                                )
+                                .frame(maxWidth: .infinity)
                             }
-                        } message: {
-                            Text("How would you like to track this?")
+                            .buttonStyle(.borderedProminent)
+                            .disabled(isOnWatchlist)
+                            .padding(.top, 4)
+                            .confirmationDialog("Add to Watchlist", isPresented: $showingStatusDialog) {
+                                ForEach(WatchStatus.allCases, id: \.self) { status in
+                                    Button(status.rawValue) {
+                                        onAdd(tvDetails, status)
+                                        dismiss()
+                                    }
+                                }
+                            } message: {
+                                Text("How would you like to track this?")
+                            }
                         }
                     }
                     .padding(.horizontal)

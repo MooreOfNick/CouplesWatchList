@@ -8,6 +8,9 @@ final class SearchViewModel {
     var isLoading = false
     var errorMessage: String?
 
+    var trendingResults: [TMDBSearchResult] = []
+    var isTrendingLoading = false
+
     private var searchTask: Task<Void, Never>?
 
     func search() {
@@ -36,6 +39,17 @@ final class SearchViewModel {
             }
             isLoading = false
         }
+    }
+
+    func loadTrending() async {
+        guard trendingResults.isEmpty else { return }
+        isTrendingLoading = true
+        do {
+            trendingResults = try await TMDBService.shared.fetchTrending()
+        } catch {
+            // silently fail — trending is decorative
+        }
+        isTrendingLoading = false
     }
 
     func clear() {
